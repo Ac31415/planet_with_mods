@@ -91,6 +91,9 @@ while 1:
         NON_COLLISION_CASES.append(case)
     elif collision==2:
         COLLISION_CASES.append(case)
+
+
+    print("Collision: "+str(collision))
         
         
     # Lists are too long? Then Truncate
