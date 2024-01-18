@@ -47,17 +47,29 @@ parser.add_argument(metavar = 'caffe.proto', dest = 'caffe_proto', help = 'Path 
 parser.add_argument(metavar = 'model.caffemodel', dest = 'model_caffemodel', help = 'Path to model.caffemodel')
 parser.add_argument('--data', help = 'Print all arrays in full', action = 'store_true')
 parser.add_argument('--codegenDir', help = 'Path to an existing temporary directory to save generated protobuf Python classes', default = tempfile.mkdtemp())
+# parser.add_argument('--codegenDir', help = 'Path to an existing temporary directory to save generated protobuf Python classes', default = '/tmp/tmp845yk0/')
 args = parser.parse_args()
 
+# print(args.codegenDir)
+# print(os.path.basename(args.caffe_proto))
+
 local_caffe_proto = os.path.join(args.codegenDir, os.path.basename(args.caffe_proto))
+
+# print(local_caffe_proto)
+# print("hello")
+
 with open(local_caffe_proto, 'w') as f:
 	f.write((urllib2.urlopen if 'http' in args.caffe_proto else open)(args.caffe_proto).read())
 	
 subprocess.check_call(['protoc', '--proto_path', os.path.dirname(local_caffe_proto), '--python_out', args.codegenDir, local_caffe_proto])
 sys.path.insert(0, args.codegenDir)
 import caffe_pb2
+# from caffe.proto import caffe_pb2
 
 deserialized = caffe_pb2.NetParameter() if os.path.splitext(args.model_caffemodel)[1] == '.caffemodel' else caffe_pb2.BlobProto()
+# deserialized = caffe_pb2.BlobProto()
+
+
 deserialized.ParseFromString(open(args.model_caffemodel, 'rb').read())
 
 json.dump(pb2json(deserialized, args.data), sys.stdout, indent = 2)
